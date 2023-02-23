@@ -68,6 +68,26 @@ class TextureRenderer(
         Matrix.setIdentityM(mSTMatrix, 0)
     }
 
+    /** 描画前に呼び出す */
+    fun prepareDraw() {
+        // glError 1282 の原因とかになる
+        GLES20.glUseProgram(mProgram)
+        checkGlError("glUseProgram")
+        mTriangleVertices.position(TRIANGLE_VERTICES_DATA_POS_OFFSET)
+        GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false, TRIANGLE_VERTICES_DATA_STRIDE_BYTES, mTriangleVertices)
+        checkGlError("glVertexAttribPointer maPosition")
+        GLES20.glEnableVertexAttribArray(maPositionHandle)
+        checkGlError("glEnableVertexAttribArray maPositionHandle")
+        mTriangleVertices.position(TRIANGLE_VERTICES_DATA_UV_OFFSET)
+        GLES20.glVertexAttribPointer(maTextureHandle, 2, GLES20.GL_FLOAT, false, TRIANGLE_VERTICES_DATA_STRIDE_BYTES, mTriangleVertices)
+        checkGlError("glVertexAttribPointer maTextureHandle")
+        GLES20.glEnableVertexAttribArray(maTextureHandle)
+        checkGlError("glEnableVertexAttribArray maTextureHandle")
+
+        // Snapdragon だと glClear が無いと映像が乱れる
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT or GLES20.GL_COLOR_BUFFER_BIT)
+    }
+
     /**
      * フレームを描画する
      *
@@ -76,8 +96,6 @@ class TextureRenderer(
     fun drawFrame(surfaceTexture: SurfaceTexture) {
         checkGlError("onDrawFrame start")
         surfaceTexture.getTransformMatrix(mSTMatrix)
-        GLES20.glUseProgram(mProgram)
-        checkGlError("glUseProgram")
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, videoTextureID)
         // 映像のテクスチャユニットは GLES20.GL_TEXTURE0 なので 0

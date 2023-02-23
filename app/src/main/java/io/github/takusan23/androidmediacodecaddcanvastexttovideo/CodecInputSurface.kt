@@ -139,6 +139,7 @@ class CodecInputSurface(
      */
     fun drawImage(onCanvasDrawRequest: (Canvas) -> Unit) {
         val surfaceTexture = surfaceTexture ?: return
+        textureRenderer.prepareDraw()
         textureRenderer.drawFrame(surfaceTexture)
         textureRenderer.drawCanvas(onCanvasDrawRequest)
         textureRenderer.invokeGlFinish()
